@@ -1,0 +1,143 @@
+---
+title: "Using SamsBeautifulPackage On Mouse Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using_SamsBeautifulPackage_On_Mouse_Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Here is how you should use SamsBeautifulPackage to clean the mousedata csv:
+
+Note: Each time we perform an action in the code, we have assigned the outcome to a new object to follow everything more easily and keep track of exactyl what actions the code is performing. In real life, this is unnecessary and you can just change the object/data frame you are working with directly.
+
+ALL R CHUNKS HAVE BEEN DELIBERATELY SET TO `eval = FALSE`. FOR AN EXAMPLE APPLICATION, SEE OUR OTHER VIGNETTE **Functions in `SamsBeautifulPackage`**.
+
+### 1. Read The Data In
+
+```{r, eval = FALSE}
+library(readxl)
+mouse_1 <- readxl::read_xlsx("/Users/jonas/Desktop/mousedata.xlsx", sheet = 1)
+mouse_2 <- readxl::read_xlsx("/Users/jonas/Desktop/mousedata.xlsx", sheet = 2)
+mouse_3 <- readxl::read_xlsx("/Users/jonas/Desktop/mousedata.xlsx", sheet = 3)
+partial_data <- merge(mouse_1, mouse_2, by = "ID", all = FALSE)
+final_data <- merge(partial_data, mouse_3, by.x = "ID", by.y = "Subject_ID", all = FALSE)
+```
+
+In this block, we load the `readxl` library to read data from an Excel file. The file contains three sheets with data from different experimental groups or conditions. These sheets are read into R using the `read_xlsx()` function. The data from the first sheet (`mouse_1`), second sheet (`mouse_2`), and third sheet (`mouse_3`) are imported.
+
+The data from `mouse_1` and `mouse_2` are merged based on a common identifier `"ID"`, and then merged with `mouse_3`, using `"ID"` from `mouse_1` and `"Subject_ID"` from `mouse_3`. The argument `all = FALSE` ensures that only rows with matching identifiers in both datasets are kept (an inner join).
+
+---
+
+### Checking for Duplicates in the Data
+
+```{r, eval = FALSE}
+library(SamsBeautifulPackage)
+check_duplicates(final_data)
+```
+
+Here, we load our package `SamsBeautifulPackage` and use the `check_duplicates()` function to identify any duplicate rows in the merged dataset `final_data`. Once we have identified which rows are duplicates of one another, we can remove them:
+
+```{r, eval = FALSE}
+no_duplicates <- final_data[!duplicated(final_data), ]
+```
+
+---
+
+### Checking and Correcting Treatment Values
+
+```{r, eval = FALSE}
+# Gives the user the chance to change "Placobo" and "Trmt" to appropriate values
+check_values(no_duplicates, "Treatment", "Plac", "Tmt")
+```
+
+The `check_values()` function is used to review values in the `"Treatment"` column of the dataset `new_data_1`. If any entries are not exactly "Plac" or "Tmt", they are flagged. The user then has a couple of options.
+
+1. Remove the rows returned by the function:
+
+```{r, eval = FALSE}
+only_tmt_plc <- no_duplicates[-c(2, 21), ]
+```
+
+2. Change the values of those rows to the appropriate ones:
+
+```{r, eval = FALSE}
+corrected_tmt_plc <- no_duplicates
+corrected_tmt_plc[2, "Treatment"] <- "Plac"
+corrected_tmt_plc[21, "Treatment"] <- "Tmt"
+```
+
+---
+
+### Handling Non-Numeric Data
+
+```{r, eval = FALSE}
+str(corrected_tmt_plc)
+```
+
+As we can see, some columns such as `Body Weight 1` and `Body Weight 1` should be encoded as numeric data, but are currently characters.
+
+```{r, eval = FALSE}
+numeric_1 <- find_non_numeric(corrected_tmt_plc, "Body Weight 1")
+#Note that the names of the columns change
+#"Body Weight 3" becomes "Body.Weight.3"
+numeric_2 <- find_non_numeric(numeric_1, "Body.Weight.3")
+```
+
+In this block, we use the `find_non_numeric()` function to check if there are any non-numeric values in the `"Body Weight 1"` and `"Body.Weight.3"` columns of our data. If non-numeric data (such as the string "Dead", or NA) is found, the row is dropped.
+
+Likewise, if there are any numbers that have been encoded as chr such as "30", this will be coerced to numeric data.
+
+---
+
+### Removing Zero or NA Values
+
+```{r, eval = FALSE}
+remove_zeroes(numeric_2, "Body.Weight.1")
+```
+
+In this steps, the `remove_zeroes()` function is used to eliminate rows where the values in the `"Body Weight"` columns are either zero or missing (`NA`). This helps clean the data by removing invalid or incomplete measurements, ensuring that only valid data is included in further analysis.
+
+---
+
+### Identifying >20% Differences Between Columns
+
+```{r, eval = FALSE}
+percent_diff(numeric_2, "Body.Weight.1", "Body.Weight.2")
+percent_diff(numeric_2, "Body.Weight.1", "Body.Weight.3")
+percent_diff(numeric_2, "Body.Weight.2", "Body.Weight.3")
+```
+
+Finally, the `percent_diff()` function calculates the percentage difference between two columns and outputs any rows where the difference exceeds 20%. This step helps ensure that data inconsistencies or measurement errors are filtered out before further analysis.
+
+Once the rows with a difference greater than 20% are identified, they can easily be removed.
+
+```{r, eval = FALSE}
+final_dataset <- numeric_2[-c(8, 14, 32), ]
+```
+
+
+---
+
+### Generating a Summary of the Data
+
+```{r, eval = FALSE}
+data_summary(numeric_2)
+```
+
+The `data_summary()` function generates a summary of the dataset `cleaned_data`, providing descriptive statistics such as mean, median, standard deviation, and other relevant summary measures for each column. This allows for a quick overview of the data's distribution and potential issues.
+
+---
+
+### Visualizing Data with a Plot
+
+```{r, eval = FALSE}
+generate_plot(numeric_2, "Body.Weight.1", "Outcome.1")
+```
+
+The `generate_plot()` function is used to create a plot visualizing the relationship between `"Body Weight 1"` and `"Outcome 1"`. This could be a scatter plot, line plot, or another type of visualization, depending on the function's implementation. It provides a way to visually inspect trends or correlations in the data.
+
+---
+
+This workflow ensures that the dataset is cleaned, corrected, and ready for further statistical analysis or modeling.

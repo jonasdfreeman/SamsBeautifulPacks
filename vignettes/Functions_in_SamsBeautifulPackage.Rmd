@@ -1,0 +1,123 @@
+---
+title: "Functions in SamsBeautifulPackage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Functions_in_SamsBeautifulPackage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+## Introduction
+
+This vignette provides an overview of the functions in SamsBeautifulPackage, which has been designed to help with data cleaning, validation, and visualization in R. These functions are useful for identifying and addressing common issues in your datasets, such as duplicate rows, missing values, non-numeric entries, and more.
+
+Below, we will walk through each function and demonstrate its use with a dummy dataset.
+
+```{r}
+library(SamsBeautifulPackage)
+```
+
+### The Dummy Dataset
+
+We will use the following dataset for all examples:
+
+```{r}
+# Create a dummy dataset
+df <- data.frame(
+  Gender = c("M", "M", "M", "M", "M", "F", "F", "F", "F", "F", "F"),
+  Treatment = c("Placobo", "Trmt", "Placobo", "Tmt", "Placobo",
+                "Trmt", "Tmt", "Placobo", "Trmt", "Tmt", "Tmt"),
+  "Body Weight 1" = c("30", 30, 28, 29, 24, 31, 33, 26, 32, 27, 27),
+  "Body Weight 2" = c(26, 31, 29, 30, 24, 32, 33, 27, 12, 28, 28),
+  "Outcome 1" = c(NA, 10, "Dead", 30, 25, 32, "Dead", 28, 34, 29, 29)
+)
+print(df)
+str(df)
+```
+
+### Notes
+1. The column **`Body Weight 1`** has num data, but is encoded as chr.
+2. Rows 10 and 11 are duplicates.
+3. The column **`Treatment`** has different nomenclature such as `Tmt`, `Trmt`.
+4. The column **`Outcome 1`** has some empty cells, as well as non-numeric data.
+
+
+### 1. `check_duplicates(df)`
+
+This function checks for duplicate rows in a data frame and prints them if they exist.
+
+```{r}
+check_duplicates(df)
+```
+The user can use this function to identify duplicate rows and remove them manually or using other base R functions.
+
+### 2. `check_values(data, column_name, value1, value2)`
+
+This function checks if the values in a specified column are limited to a given set of valid values. It identifies rows where the column contains invalid entries.
+
+```{r}
+check_values(df, "Treatment", "Tmt", "Plac")
+```
+
+We have thus identified that some values in the `Treatment` column are not either "Tmt" or "Plac" and so we can use other base R functions and regex to replace the values according to the study's needs.
+
+### 3. `find_non_numeric(data, column_name)`
+
+This function identifies non-numeric values in a specified column and removes the rows with non-numeric entries.
+
+```{r}
+df_1 <- find_non_numeric(df, "Body.Weight.1")
+df_2 <- find_non_numeric(df_1, "Outcome.1")
+str(df_2)
+print(df_2)
+```
+
+As we can see from the structure of the data, we have coerced the columns we included in the arguments into num, rather than chr data. We have also dropped the rows with values such as "NA" or "Dead".
+
+### 4. `generate_plot(data, x_var, y_var)`
+
+This function generates a scatter plot for two specified numeric variables from the dataset.
+
+```{r}
+generate_plot(df_2, "Body.Weight.1", "Body.Weight.2")
+```
+
+### 5. `percent_diff(df, col1, col2)`
+
+This function calculates the absolute percentage difference between two specified columns and identifies rows where the difference exceeds the 20% threshold.
+
+```{r}
+percent_diff(df_2, "Body.Weight.1", "Body.Weight.2")
+```
+It is then up to the user to decide whether they would like to drop this row.
+
+### 6. `remove_zeroes(data, column_name)`
+
+This function removes rows where a specified column contains zero, empty strings, or NA values.
+
+```{r}
+remove_zeroes(df, "Outcome.1")
+```
+
+
+### 7. `data_summary(data)`
+
+This function gives the user several summary statistics about the data, such as quantiles, median and mean.
+
+```{r}
+data_summary(df_2)
+```
+
+
+
+### Key Highlights:
+
+1. **`check_duplicates(df)`**: Checks for and displays duplicate rows.
+2. **`check_values(data, column_name, value1, value2)`**: Verifies if a column has only specific valid values.
+3. **`find_non_numeric(data, column_name)`**: Coerces a column to numeric data. Identifies and removes rows with non-numeric values in a column.
+4. **`generate_plot(data, x_var, y_var)`**: Generates scatter plots of two variables.
+5. **`percent_diff(df, col1, col2)`**: Identifies greater than 20% differences between two columns.
+6. **`remove_zeroes(data, column_name)`**: Removes rows where a column has zero, empty, or NA values.
+7. **`data_summary(data)`**: Gives the user a snapshot with some summary statistics of the numeric data.
+

@@ -1,0 +1,29 @@
+Package: SamsBeautifulPackage
+Title: A Comprehensive Toolset for Data Analysis and Visualization
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Jonas", "Freeman", , "jonasfreeman@college.harvard.edu", role = "aut"),
+    person("Abdu", "Sahibousidq", , "asahibousidq@college.harvard.edu", role = "aut"),
+    person("Sam", "Lindemann", , "samlindemann@college.harvard.edu", role = "cre")
+  )
+Description: SamsBeautifulPackage provides a set of powerful tools for data analysis, 
+    including advanced statistical methods and customizable visualizations. 
+    Designed for both novice and experienced R users, this package allows users 
+    to easily manipulate datasets, perform complex analysis, and create high-quality 
+    plots with minimal effort. The package also supports integration with other 
+    popular data science packages, making it a versatile addition to any data scientist’s toolkit.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5)
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    stats
+VignetteBuilder: knitr

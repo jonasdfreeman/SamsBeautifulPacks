@@ -1,0 +1,101 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# SamsBeautifulPackage
+
+The goal of SamsBeautifulPackage is to offer R users several ready-made functions for data cleaning and wrangling. Previously a user had to use several lines of code which our package can now accomplish with one simple function. We hope that you find this useful!
+
+## Installation
+
+To install the development version from [GitHub](https://github.com/) use:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("jonasdfreeman/SamsBeautifulPackage")
+```
+
+## General Usage
+
+For examples of how to use the functions in this package, the user should direct their attention to the `Functions In SamsBeautifulPackage` vignette. This vignette offers the user a series of examples of how to apply the functions in the package to a dummy dataset which contains several common issues in real-world data.
+
+## User Guide for Mouse Data
+
+This package was primarily designed to deal with the `mousedata.xlsx` file which was presented in Statistics 108: Introduction to R (taught by James Xenakis). We have included a helpful vignette entitled `Using SamsBeautifulPackage On Mouse Data` which goes through a step by step process outlining how our functions can be used to analyze mouse data.
+
+## Key Highlights:
+
+1. **`check_duplicates(df)`**: Checks for and displays duplicate rows.
+2. **`check_values(data, column_name, value1, value2)`**: Verifies if a column has only specific valid values.
+3. **`find_non_numeric(data, column_name)`**: Coerces a column to numeric data. Identifies and removes rows with non-numeric values in a column.
+4. **`generate_plot(data, x_var, y_var)`**: Generates scatter plots of two variables.
+5. **`percent_diff(df, col1, col2)`**: Identifies greater than 20% differences between two columns.
+6. **`remove_zeroes(data, column_name)`**: Removes rows where a column has zero, empty, or NA values.
+7. **`data_summary(data)`**: Gives the user a snapshot with some summary statistics of the numeric data.
+
+### Contents
+
+SamsBeautifulPackage contains one dataset called `ourdata`:
+
+```{r showdata}
+library(SamsBeautifulPackage)
+data(package = 'SamsBeautifulPackage')
+```
+
+This dataset is originally sourced from Kaggle under the CC0 1.0 Universal licence. This is data that confirmed the grade of performance with age and some exercise performance data.
+
+Here is a link to the original dataset source: https://www.kaggle.com/datasets/kukuroo3/body-performance-data
+
+```{r}
+head(ourdata)
+``` 
+
+The dataset was comrpised of 13393 rows and 12 columns, but the data in the package has been wrangled to just 13392 rows (see data-raw folder).
+
+```{r}
+str(ourdata)
+```
+
+### Function Examples
+
+For more information on the specific functionality of the functions in SamsBeautifulPackage, please see our documentation by typing `help(package = "SamsBeautifulPackage")`.
+
+Here are some fun examples of how our package can be used:
+
+```{r}
+# Generate a plot automatically by inputting arguments into the generate_plot() function
+generate_plot(ourdata, "age", "gripForce")
+```
+
+
+```{r}
+# Check whether everyone's gender is either "M" or "F"
+check_values(ourdata, "gender", "M", "F")
+```
+
+
+```{r}
+# Here is a cool plot which plots heigh vs weight in one simple function
+generate_plot(ourdata, "height_cm", "weight_kg")
+```
+
+
+
+## Citation
+
+To cite SamsBeautifulPackage package, please use:
+
+```{r}
+citation("SamsBeautifulPackage")
+```
+
+## License
+
+Data are available by  [CC-0](https://creativecommons.org/share-your-work/public-domain/cc0/)
+
+## Additional data use information
+
+Anyone interested in publishing the data should contact Sam Lindemann samlindemann@college.harvard.edu
+
